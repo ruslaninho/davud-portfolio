@@ -8,6 +8,7 @@ import BuildModes from "@/components/BuildModes";
 import ProjectsCompiler from "@/components/ProjectsCompiler";
 import WorkTransition from "./WorkTransition";
 import FinalCTA from "./FinalCTA";
+import MobileHero from "@/components/MobileHero";
 
 export default function PortfolioLanding() {
   const [isReady, setIsReady] = useState(false);
@@ -56,7 +57,7 @@ export default function PortfolioLanding() {
             ease: [0.76, 0, 0.24, 1],
           }}
         >
-          <Hero />
+          <Hero />        
           <WorkTransition />
           <ProjectsCompiler />
           <FinalCTA />
