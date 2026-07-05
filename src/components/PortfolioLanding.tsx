@@ -4,24 +4,28 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import Hero from "@/components/Hero";
 import IntroLoader from "@/components/IntroLoader";
-import BuildModes from "@/components/BuildModes";
 import ProjectsCompiler from "@/components/ProjectsCompiler";
 import WorkTransition from "./WorkTransition";
 import FinalCTA from "./FinalCTA";
-import MobileHero from "@/components/MobileHero";
+import HeroTransition from "@/components/HeroTransition";
 
 export default function PortfolioLanding() {
   const [isReady, setIsReady] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const forceIntro = searchParams.has("intro");
+  const timer = window.setTimeout(() => {
+    const forceIntro = window.location.search.includes("intro=true");
     const introSeen = sessionStorage.getItem("davud-portfolio-intro-seen");
 
     setShowIntro(forceIntro || !introSeen);
     setIsReady(true);
-  }, []);
+  }, 0);
+
+  return () => {
+    window.clearTimeout(timer);
+  };
+}, []);
 
   const handleIntroFinish = useCallback(() => {
     sessionStorage.setItem("davud-portfolio-intro-seen", "true");
@@ -57,7 +61,8 @@ export default function PortfolioLanding() {
             ease: [0.76, 0, 0.24, 1],
           }}
         >
-          <Hero />        
+          <Hero />  
+          <HeroTransition />      
           <WorkTransition />
           <ProjectsCompiler />
           <FinalCTA />

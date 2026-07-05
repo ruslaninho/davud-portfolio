@@ -90,7 +90,9 @@ export default function WorkDetailPage() {
   useEffect(() => {
     if (!project) return;
 
-    setVisibleStep(0);
+    const resetTimer = setTimeout(() => {
+      setVisibleStep(0);
+    }, 0);
 
     const timers = bootSteps.map((_, index) =>
       setTimeout(() => {
@@ -103,7 +105,8 @@ export default function WorkDetailPage() {
     );
 
     return () => {
-      timers.forEach((timer) => clearTimeout(timer));
+      clearTimeout(resetTimer);
+      timers.forEach(clearTimeout);
     };
   }, [project]);
 
@@ -405,11 +408,10 @@ function CaseBootHeader({
           return (
             <div
               key={step}
-              className={`border px-3 py-2 font-mono text-[9px] uppercase leading-4 tracking-[0.14em] ${
-                isActive
-                  ? "border-emerald-400/60 text-emerald-400"
-                  : "border-white/15 text-white/30"
-              }`}
+              className={`border px-3 py-2 font-mono text-[9px] uppercase leading-4 tracking-[0.14em] ${isActive
+                ? "border-emerald-400/60 text-emerald-400"
+                : "border-white/15 text-white/30"
+                }`}
             >
               <span>{String(index + 1).padStart(2, "0")}</span>
               <p className="mt-1">{step}</p>
@@ -433,17 +435,15 @@ function InfoBox({
   return (
     <motion.div
       whileHover={{ y: -3, borderColor: "rgba(52,211,153,0.75)" }}
-      className={`border p-4 font-mono uppercase ${
-        active
-          ? "border-emerald-400 bg-emerald-400/10"
-          : "border-white/20 bg-black"
-      }`}
+      className={`border p-4 font-mono uppercase ${active
+        ? "border-emerald-400 bg-emerald-400/10"
+        : "border-white/20 bg-black"
+        }`}
     >
       <p className="text-[10px] tracking-[0.24em] text-white/35">{label}</p>
       <p
-        className={`mt-3 text-xs tracking-[0.12em] ${
-          active ? "text-emerald-400" : "text-white/65"
-        }`}
+        className={`mt-3 text-xs tracking-[0.12em] ${active ? "text-emerald-400" : "text-white/65"
+          }`}
       >
         {value}
       </p>
@@ -466,16 +466,14 @@ function CaseBlock({
     <motion.div
       onMouseEnter={onHover}
       whileHover={{ y: -3 }}
-      className={`border p-5 transition ${
-        active
-          ? "border-emerald-400 bg-emerald-400/10"
-          : "border-white/25 bg-white/[0.02]"
-      }`}
+      className={`border p-5 transition ${active
+        ? "border-emerald-400 bg-emerald-400/10"
+        : "border-white/25 bg-white/[0.02]"
+        }`}
     >
       <p
-        className={`font-mono text-[10px] uppercase tracking-[0.3em] ${
-          active ? "text-emerald-400" : "text-white/40"
-        }`}
+        className={`font-mono text-[10px] uppercase tracking-[0.3em] ${active ? "text-emerald-400" : "text-white/40"
+          }`}
       >
         {title}
       </p>

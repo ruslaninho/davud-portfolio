@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AnimatePresence,
   motion,
   useMotionValueEvent,
   useScroll,
@@ -57,6 +58,7 @@ export default function ProjectsCompiler() {
   const [activeId, setActiveId] = useState<string>(fallbackProjects[0].id);
   const [loadedCount, setLoadedCount] = useState(0);
   const [bootDone, setBootDone] = useState(false);
+  const [mobileOpenId, setMobileOpenId] = useState<string>(fallbackProjects[0].id);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -97,6 +99,7 @@ export default function ProjectsCompiler() {
 
       setProjects(normalizedProjects);
       setActiveId(normalizedProjects[0].id);
+      setMobileOpenId(normalizedProjects[0].id);
       setLoadedCount(0);
       setBootDone(false);
       setBackendStatus("backend connected");
@@ -129,82 +132,250 @@ export default function ProjectsCompiler() {
     <section
       id="work"
       ref={sectionRef}
-      className="relative h-[240vh] bg-black text-white"
+      className="relative bg-black text-white lg:h-[240vh]"
     >
-      <div className="sticky top-0 h-screen overflow-hidden bg-black px-6 py-6">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:96px_96px] opacity-20" />
+      <div className="block lg:hidden">
+        <MobileProjectsAccordion
+          projects={projects}
+          backendStatus={backendStatus}
+          openId={mobileOpenId}
+          setOpenId={setMobileOpenId}
+        />
+      </div>
 
-        <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col">
-          <div className="mb-6 grid gap-6 border-b border-white/20 pb-5 md:grid-cols-[0.9fr_1.1fr] md:items-end">
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.34em] text-emerald-400">
-                work.index / scroll to mount
-              </p>
+<div className="hidden lg:block lg:h-full">
+            <div className="sticky top-0 h-screen overflow-hidden bg-black px-6 py-6">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:96px_96px] opacity-20" />
 
-              <h2 className="mt-3 font-mono text-[15vw] font-black leading-none tracking-[-0.15em] md:text-[78px]">
-                WORK
-              </h2>
-            </div>
+          <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col">
+            <div className="mb-6 grid gap-6 border-b border-white/20 pb-5 md:grid-cols-[0.9fr_1.1fr] md:items-end">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.34em] text-emerald-400">
+                  work.index / scroll to mount
+                </p>
 
-            <div className="md:justify-self-end">
-              <div className="mb-3 flex items-center justify-between gap-6 border border-white/20 bg-black px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em]">
-                <span className="text-white/40">{backendStatus}</span>
-
-                <span className="text-emerald-400">
-                  {bootDone
-                    ? "index ready"
-                    : loadedCount === 0
-                      ? "waiting for scroll"
-                      : `mounting ${loadedCount}/${projects.length}`}
-                </span>
+                <h2 className="mt-3 font-mono text-[15vw] font-black leading-none tracking-[-0.15em] md:text-[78px]">
+                  WORK
+                </h2>
               </div>
 
-              <div className="h-[3px] w-full bg-white md:w-[420px]">
-                <motion.div
-                  style={{ scaleX: smoothProgress }}
-                  className="h-full origin-left bg-emerald-400"
-                />
-              </div>
-            </div>
-          </div>
+              <div className="md:justify-self-end">
+                <div className="mb-3 flex items-center justify-between gap-6 border border-white/20 bg-black px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em]">
+                  <span className="text-white/40">{backendStatus}</span>
 
-          <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[0.82fr_1.18fr]">
-            <div className="space-y-2">
-              {projects.map((project, index) => {
-                const isLoaded = index < loadedCount;
+                  <span className="text-emerald-400">
+                    {bootDone
+                      ? "index ready"
+                      : loadedCount === 0
+                        ? "waiting for scroll"
+                        : `mounting ${loadedCount}/${projects.length}`}
+                  </span>
+                </div>
 
-                return (
-                  <ProjectRow
-                    key={project.id}
-                    project={project}
-                    displayId={String(index + 1).padStart(2, "0")}
-                    isLoaded={isLoaded}
-                    isActive={project.id === activeId && isLoaded}
-                    index={index}
-                    onActivate={() => {
-                      if (isLoaded) setActiveId(project.id);
-                    }}
+                <div className="h-[3px] w-full bg-white md:w-[420px]">
+                  <motion.div
+                    style={{ scaleX: smoothProgress }}
+                    className="h-full origin-left bg-emerald-400"
                   />
-                );
-              })}
+                </div>
+              </div>
             </div>
 
-            <div className="relative hidden min-h-0 lg:block">
-              {loadedCount === 0 ? (
-                <BootPreview />
-              ) : (
-                <ProjectPreview
-                  project={activeProject}
-                  bootDone={bootDone}
-                  loadedCount={loadedCount}
-                  totalCount={projects.length}
-                />
-              )}
+            <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[0.82fr_1.18fr]">
+              <div className="space-y-2">
+                {projects.map((project, index) => {
+                  const isLoaded = index < loadedCount;
+
+                  return (
+                    <ProjectRow
+                      key={project.id}
+                      project={project}
+                      displayId={String(index + 1).padStart(2, "0")}
+                      isLoaded={isLoaded}
+                      isActive={project.id === activeId && isLoaded}
+                      index={index}
+                      onActivate={() => {
+                        if (isLoaded) setActiveId(project.id);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+              <div className="relative hidden min-h-0 lg:block">
+                {loadedCount === 0 ? (
+                  <BootPreview />
+                ) : (
+                  <ProjectPreview
+                    project={activeProject}
+                    bootDone={bootDone}
+                    loadedCount={loadedCount}
+                    totalCount={projects.length}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function MobileProjectsAccordion({
+  projects,
+  backendStatus,
+  openId,
+  setOpenId,
+}: {
+  projects: Project[];
+  backendStatus: string;
+  openId: string;
+  setOpenId: (id: string) => void;
+}) {
+  return (
+    <div className="relative overflow-hidden bg-black px-4 py-16">
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:56px_56px] opacity-20" />
+
+      <div className="relative z-10 mx-auto max-w-xl">
+        <div className="mb-8 border-b border-white/20 pb-5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.34em] text-emerald-400">
+            work.index / mobile accordion
+          </p>
+
+          <h2 className="mt-3 font-mono text-[22vw] font-black leading-none tracking-[-0.15em]">
+            WORK
+          </h2>
+
+          <div className="mt-5 flex flex-col gap-2 border border-white/20 bg-black px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em]">
+            <span className="text-white/40">{backendStatus}</span>
+            <span className="text-emerald-400">
+              scroll to open preview
+            </span>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          {projects.map((project, index) => (
+            <MobileProjectItem
+  key={project.id}
+  project={project}
+  displayId={String(index + 1).padStart(2, "0")}
+  isOpen={openId === project.id}
+  onOpen={() => setOpenId(project.id)}
+/>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileProjectItem({
+  project,
+  displayId,
+  isOpen,
+  onOpen,
+}: {
+  project: Project;
+  displayId: string;
+  isOpen: boolean;
+  onOpen: () => void;
+}) {
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+  whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+  viewport={{ once: false, amount: 0.55 }}
+  onViewportEnter={onOpen}
+      transition={{ duration: 0.45, ease: [0.76, 0, 0.24, 1] }}
+      className={`overflow-hidden border bg-black transition ${
+        isOpen
+          ? "border-emerald-400 shadow-[0_0_35px_rgba(52,211,153,0.12)]"
+          : "border-white/20"
+      }`}
+    >
+      <button
+        type="button"
+        onClick={onOpen}
+        className="w-full px-4 py-4 text-left"
+      >
+        <div className="grid gap-3">
+          <div className="flex items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.22em]">
+            <span className={isOpen ? "text-emerald-400" : "text-white/35"}>
+              {displayId}
+            </span>
+
+            <span className={isOpen ? "text-emerald-400" : "text-white/35"}>
+              {isOpen ? "open" : "tap to preview"}
+            </span>
+          </div>
+
+          <h3 className="font-mono text-3xl font-black uppercase leading-none tracking-[-0.1em] text-white">
+            {project.name}
+          </h3>
+
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35">
+            {project.url}
+          </p>
+        </div>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0, filter: "blur(8px)" }}
+            animate={{ height: "auto", opacity: 1, filter: "blur(0px)" }}
+            exit={{ height: 0, opacity: 0, filter: "blur(8px)" }}
+            transition={{ duration: 0.42, ease: [0.76, 0, 0.24, 1] }}
+            className="overflow-hidden border-t border-emerald-400/30"
+          >
+            <div className="p-4">
+              <div className="relative aspect-[4/3] overflow-hidden border border-white/20 bg-[#050505]">
+                <PreviewImage project={project} />
+              </div>
+
+              <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.28em] text-emerald-400">
+                {project.type}
+              </p>
+
+              <p className="mt-3 font-mono text-xs uppercase leading-6 text-white/50">
+                {project.description}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {(project.tags ?? []).slice(0, 4).map((tag) => (
+                  <span
+                    key={tag}
+                    className="border border-white/25 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.12em] text-white/55"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                <Link
+                  href={`/work/${project.slug}`}
+                  className="bg-emerald-400 px-5 py-4 text-center font-mono text-xs font-bold uppercase tracking-[0.14em] text-black"
+                >
+                  view details
+                </Link>
+
+                <a
+                  href={withProtocol(project.url)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="border border-white/20 bg-black px-5 py-4 text-center font-mono text-xs uppercase tracking-[0.14em] text-white/70"
+                >
+                  visit website
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.article>
   );
 }
 
@@ -226,7 +397,6 @@ function ProjectRow({
   return (
     <motion.div
       onMouseEnter={onActivate}
-      onClick={onActivate}
       initial={false}
       animate={{
         opacity: isLoaded ? 1 : 0.3,
@@ -268,6 +438,12 @@ function ProjectRow({
               {project.type}
             </p>
           </div>
+
+          <Link
+            href={`/work/${project.slug}`}
+            aria-label={`Open ${project.name} details`}
+            className="absolute inset-0 z-10"
+          />
 
           <motion.div
             animate={{ scaleX: isActive ? 1 : 0 }}
@@ -421,8 +597,14 @@ function PreviewImage({ project }: { project: Project }) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+  const timer = window.setTimeout(() => {
     setFailed(false);
-  }, [project.id]);
+  }, 0);
+
+  return () => {
+    window.clearTimeout(timer);
+  };
+}, [project.id]);
 
   if (failed || !project.image_url) {
     return <FallbackPreview project={project} />;
